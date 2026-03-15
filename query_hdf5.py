@@ -108,7 +108,11 @@ def main():
                 print(f"Executed latest Query: {query_str.strip()}")
 
             print(f"SeqScan Time: {seq_duration:.4f}s")
-            print(f"ANN Index Time: {ann_duration:.4f}s")
+            if args.index_name and args.hint_method == "pg_hint_plan":
+                print(f"ANN Index ({args.index_name}) Time: {ann_duration:.4f}s")
+            else:
+                print(f"ANN Index Time: {ann_duration:.4f}s")
+            print(f"Recall@{args.k}: {recall:.4f}")
 
         # 3. Calculate match overlap 
         matches = len(true_neighbors.intersection(retrieved_neighbors))
