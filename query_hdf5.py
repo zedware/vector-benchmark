@@ -142,8 +142,8 @@ def main():
         fig = go.Figure()
         queries = list(range(1, args.num_queries + 1))
         
-        fig.add_trace(go.Scatter(x=queries, y=seq_times, mode='lines+markers', name='SeqScan Time', line=dict(color='red')))
-        fig.add_trace(go.Scatter(x=queries, y=ann_times, mode='lines+markers', name='ANN Index Time', line=dict(color='blue')))
+        fig.add_trace(go.Scatter(x=queries, y=seq_times, mode='lines+markers', name=f'SeqScan Time - Recall@{args.k} = 1.0000', line=dict(color='red')))
+        fig.add_trace(go.Scatter(x=queries, y=ann_times, mode='lines+markers', name=f'ANN Index Time - Recall@{args.k} = {avg_recall:.4f}', line=dict(color='blue')))
         
         fig.update_layout(
             title=f"Query Execution Times (n={args.num_queries})",
