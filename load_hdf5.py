@@ -24,9 +24,9 @@ def main():
         # Create table with pgvector
         print("Ensuring pgvector extension and table exist...")
         cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
-        cur.execute(f"CREATE TABLE IF NOT EXISTS {args.table_name} (id SERIAL PRIMARY KEY, embedding vector({args.dimensions}));")
+        cur.execute(f"CREATE TABLE IF NOT EXISTS {args.table_name} (id INT PRIMARY KEY, embedding vector({args.dimensions}));")
         conn.commit()
-
+ 
         # Get current count to resume
         cur.execute(f"SELECT count(*) FROM {args.table_name};")
         current_count = cur.fetchone()[0]
@@ -40,13 +40,16 @@ def main():
             
             # Prepare buffer for COPY
             output = io.StringIO()
-            for row in batch:
+            for idx, row in enumerate(batch):
+                # Calculate the original ID (row index)
+                row_id = i + idx
                 # Format as postgres vector string: [v1,v2,...]
                 vec_str = "[" + ",".join(map(str, row)) + "]"
-                output.write(f"{vec_str}\\n")
+                # Use tab separation for COPY (default)
+                output.write(f"{row_id}\t{vec_str}\n")
             
             output.seek(0)
-            cur.copy_from(output, args.table_name, columns=('embedding',))
+            cur.copy_from(output, args.table_name, columns=('id', 'embedding'))
             
             if end % 100000 == 0:
                 print(f"Processed {end}/{num_vectors} vectors...")
