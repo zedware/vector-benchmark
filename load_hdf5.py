@@ -10,13 +10,16 @@ def main():
     parser.add_argument("--table-name", "-t", default="cohere_vectors", help="Target table name")
     parser.add_argument("--dimensions", "-D", type=int, default=768, help="Vector dimensions")
     parser.add_argument("--batch-size", "-b", type=int, default=10000, help="Batch size for insertion")
+    parser.add_argument("--num-vectors", "-n", type=int, default=0, help="Number of vectors to load (0 for all)")
     args = parser.parse_args()
 
     print(f"Opening HDF5 file: {args.hdf5_path}")
     with h5py.File(args.hdf5_path, 'r') as f:
         train_data = f['train']
         num_vectors = train_data.shape[0]
-        print(f"Found {num_vectors} vectors with dimension {train_data.shape[1]}")
+        if args.num_vectors > 0:
+            num_vectors = min(num_vectors, args.num_vectors)
+        print(f"Loading {num_vectors} vectors with dimension {train_data.shape[1]}")
 
         conn = psycopg2.connect(args.db_url)
         cur = conn.cursor()
